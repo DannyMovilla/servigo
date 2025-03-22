@@ -1,5 +1,6 @@
 "use client";
 
+import { loginUser } from "@/actions/login";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/lib/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -36,19 +36,16 @@ export default function LoginPage() {
 
   const onSubmit = async (data: { email: string; password: string }) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
+    const result = await loginUser(data.email, data.password);
 
-    if (error) {
-      toast.error("Error al iniciar sesión");
-    } else {
-      console.log("Inicio de sesión exitoso");
-      toast.success("Inicio de sesión exitoso");
-      router.push("/dashboard");
+    if (!result.success) {
+      toast.error(result.error || "Error desconocido");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    toast.success("Inicio de sesión exitoso");
+    router.push("/dashboard");
   };
 
   return (

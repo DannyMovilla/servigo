@@ -1,3 +1,6 @@
+"use client"
+
+import { getClientes } from "@/actions/getClientes";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -7,8 +10,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Cliente } from "@/types/clientes";
+import { useEffect, useState } from "react";
 
 export default function ClientesPage() {
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+
+  useEffect(() => {
+    async function fetchClientes() {
+      try {
+        const data = await getClientes();
+        setClientes(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchClientes();
+  }, []);
+
   return (
     <div className="px-4 lg:px-6">
       <h1 className="text-4xl font-bold text-blue-600">
@@ -27,15 +47,17 @@ export default function ClientesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">Daniel Movilla</TableCell>
-            <TableCell>movilla.daniel@gmail.com</TableCell> 
-            <TableCell className="text-center">
-              <Button variant="outline" className="w-24">
-                Editar
+          {clientes.map((cliente) => (
+            <TableRow key={cliente.id}>
+              <TableCell className="font-medium">{cliente.nombre}</TableCell>
+              <TableCell>{cliente.email}</TableCell>
+              <TableCell className="text-center">
+                <Button variant="outline" className="w-24">
+                  Editar
               </Button>
             </TableCell>
           </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
